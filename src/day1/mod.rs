@@ -1,32 +1,50 @@
+use aho_corasick::AhoCorasick;
+
 pub fn run(input: String) -> (String, String) {
-    let vec = sum_calories_per_elf(input);
-    let highest_calories1 = sum_n_highest(&vec, 1);
-
-    let highest_calories2 = sum_n_highest(&vec, 3);
-    (highest_calories1.to_string(), highest_calories2.to_string())
-}
-
-fn sum_n_highest(vec: &[u32], n: u32) -> u32 {
-    let mut vec = vec.to_owned();
-    vec.sort();
-    let mut sum_cals = 0;
-
-    for _ in 0..n {
-        let highest_calories = vec.pop().unwrap();
-        sum_cals += highest_calories;
-    }
-    sum_cals
-}
-
-fn sum_calories_per_elf(s: String) -> Vec<u32> {
-    let mut vec = vec![0];
-    for line in s.lines() {
-        if line.is_empty() {
-            vec.push(0);
-        } else {
-            let len = vec.len() - 1;
-            vec[len] = vec.last().unwrap() + line.parse::<u32>().unwrap();
+    let mut partonesum = 0;
+    let mut parttwosum = 0;
+    for line in input.lines() {
+        let mut first = 0;
+        let mut second = 0;
+        for char in line.chars() {
+            if let Some(i) = char.to_digit(10) {
+                first = 10*i;
+                break
+            }
         }
+        for char in line.chars().rev() {
+            if let Some(i) = char.to_digit(10) {
+                second = i;
+                break
+            }
+        }
+        partonesum += first + second;
     }
-    vec
+    
+    let words = &["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+    let backwards_words = &["eno", "owt", "eerht", "ruof", "evif", "xis", "neves", "thgie", "enin"];
+    let numbers = &["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+    for line in input.lines() {
+        let ac = AhoCorasick::new(words).unwrap();
+        let new_line = ac.replace_all(line, numbers);
+        let mut first = 0;
+        let mut second = 0;
+        for char in new_line.chars() {
+            if let Some(i) = char.to_digit(10) {
+                first = 10*i;
+                break
+            }
+        }
+        let ac = AhoCorasick::new(backwards_words).unwrap();
+        let new_line = ac.replace_all(&line.chars().rev().collect::<String>(), numbers);
+        for char in new_line.chars() {
+            if let Some(i) = char.to_digit(10) {
+                second = i;
+                break
+            }
+        }
+        parttwosum += first + second;
+    }
+
+       (format!("{}", partonesum), format!("{}", parttwosum))
 }
