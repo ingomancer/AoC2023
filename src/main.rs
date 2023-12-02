@@ -1,6 +1,7 @@
 use std::{error::Error, fs, path::Path, time::Instant};
 
 mod day1;
+mod day2;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let day: i32 = std::env::args()
