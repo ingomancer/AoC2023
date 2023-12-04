@@ -1,4 +1,4 @@
-use std::{collections::HashMap, ops::Index};
+use std::collections::HashMap;
 
 #[derive(Debug)]
 struct PartNum {
@@ -9,7 +9,7 @@ struct PartNum {
 }
 
 pub fn run(input: String) -> (String, String) {
-    let mut partNums = vec![];
+    let mut part_nums = vec![];
     let mut symbols = vec![];
     let mut sum = 0;
     for (i, line) in input.lines().enumerate() {
@@ -18,7 +18,7 @@ pub fn run(input: String) -> (String, String) {
             match char {
                 '.' => {
                     if !num.is_empty() {
-                        partNums.push(PartNum {
+                        part_nums.push(PartNum {
                             num: num.parse().unwrap(),
                             i,
                             start_j: j - num.len(),
@@ -30,7 +30,7 @@ pub fn run(input: String) -> (String, String) {
                 '0'..='9' => num.push(char),
                 _ => {
                     if !num.is_empty() {
-                        partNums.push(PartNum {
+                        part_nums.push(PartNum {
                             num: num.parse().unwrap(),
                             i,
                             start_j: j - num.len(),
@@ -43,18 +43,17 @@ pub fn run(input: String) -> (String, String) {
             }
         }
         if !num.is_empty() {
-            partNums.push(PartNum {
+            part_nums.push(PartNum {
                 num: num.parse().unwrap(),
                 i,
                 start_j: line.len() - num.len(),
                 end_j: line.len() - 1,
             });
-            num = String::new();
         }
     }
     let mut gears = HashMap::new();
 
-    for part in partNums {
+    for part in part_nums {
         let mut done = false;
         for (i, j, char) in symbols.as_slice() {
             if let -1..=1 = part.i as isize - *i as isize {
