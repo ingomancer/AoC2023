@@ -14,7 +14,8 @@ pub fn run(input: String) -> (String, String) {
         let mut wins = 0;
         for speed in 0..time {
             if speed * (time - speed) > distance {
-                wins += 1;
+                wins = (time-1) - 2*(speed-1);
+                break;
             }
         }
         prod *= wins;
@@ -24,7 +25,8 @@ pub fn run(input: String) -> (String, String) {
     let mut wins = 0;
     for speed in 0..p2time {
         if speed * (p2time - speed) > p2dist {
-            wins += 1;
+            wins = (p2time-1) - 2*(speed-1);
+            break;
         }
     }
     (format!("{prod}"),format!("{wins}"))
