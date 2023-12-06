@@ -24,12 +24,7 @@ pub fn run(input: String) -> (String, String) {
     let mut cur_mapping = vec![];
     lines.next();
     lines.next();
-    loop {
-        let line = if let Some(line) = lines.next() {
-            line
-        } else {
-            break;
-        };
+    while let Some(line) = lines.next() {
         if line.is_empty() {
             lines.next();
             mappings.push(cur_mapping);
