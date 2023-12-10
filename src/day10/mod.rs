@@ -7,7 +7,7 @@ pub fn run(input: String) -> (String, String) {
         for (y, char) in line.chars().enumerate() {
             if char == 'S' {
                 s = (x, y);
-                map.insert((x, y), '7');
+                map.insert((x, y), '7'); // Hack for my input instead of calculating what S must be
             } else {
                 map.insert((x, y), char);
             }
@@ -98,7 +98,6 @@ pub fn run(input: String) -> (String, String) {
                             prev_in_loop = false;
                         }
                         _ => {
-                            println!("{}", map.get(&(x, point.1)).unwrap());
                             panic!();
                         }
                     }
