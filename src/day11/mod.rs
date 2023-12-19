@@ -15,7 +15,7 @@ pub fn run(input: String) -> (String, String) {
             if char == '#' {
                 empty_cols.remove(&y);
                 no_galaxies = false;
-                galaxies.insert((x + x_offset, y, x + x_offset_2, y));
+                galaxies.insert((x + x_offset, y, x + x_offset_2));
             }
         }
         if no_galaxies {
@@ -26,7 +26,7 @@ pub fn run(input: String) -> (String, String) {
     let mut counted_galaxies = HashSet::new();
     let mut sum = 0;
     let mut sum2 = 0;
-    for galaxy in galaxies.iter().map(|(x, y, x2, y2)| {
+    for galaxy in galaxies.iter().map(|(x, y, x2)| {
         let mut new_y = *y;
         let mut new_y2 = *y;
         for col in empty_cols.iter() {
@@ -38,7 +38,7 @@ pub fn run(input: String) -> (String, String) {
         (*x, new_y, *x2, new_y2)
     }) {
         counted_galaxies.insert(galaxy);
-        for other_galaxy in galaxies.iter().map(|(x, y, x2, y2)| {
+        for other_galaxy in galaxies.iter().map(|(x, y, x2)| {
             let mut new_y = *y;
             let mut new_y2 = *y;
             for col in empty_cols.iter() {
