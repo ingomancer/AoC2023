@@ -1,6 +1,6 @@
 use indicatif::ParallelProgressIterator;
 use rayon::prelude::*;
-use std::iter::zip;
+use std::{collections::HashMap, iter::zip};
 pub fn run(input: String) -> (String, String) {
     let lines = input.lines().count() as u64;
     let (sum, sum2): (usize, usize) = input
@@ -14,10 +14,11 @@ pub fn run(input: String) -> (String, String) {
             );
             let griddle: Vec<&str> = griddle.split(',').collect();
             let griddle2: Vec<&str> = griddle2.split(',').collect();
-
+            let mut memo: HashMap<(String, Vec<String>), usize> = HashMap::new();
+            let mut memo2: HashMap<(String, Vec<String>), usize> = HashMap::new();
             (
-                count_possible_arangements(grid.to_string(), &griddle),
-                count_possible_arangements(grid2, &griddle2),
+                count_possible_arangements(grid.to_string(), &griddle, &mut memo),
+                count_possible_arangements(grid2, &griddle2, &mut memo2),
             )
         })
         .progress_count(lines)
@@ -25,9 +26,19 @@ pub fn run(input: String) -> (String, String) {
     (format!("{}", sum), format!("{}", sum2))
 }
 
-fn count_possible_arangements(grid: String, griddle: &Vec<&str>) -> usize {
+fn count_possible_arangements(
+    grid: String,
+    griddle: &Vec<&str>,
+    memo: &mut HashMap<(String, Vec<String>), usize>,
+) -> usize {
     let mut arrangements = 0;
     let mut wildcards = false;
+    if let Some(memcount) = memo.get(&(
+        grid.clone(),
+        griddle.iter().map(|x| x.to_string()).collect(),
+    )) {
+        return *memcount;
+    }
     let parts: Vec<&str> = grid.split('.').filter(|x| !x.is_empty()).collect();
     for (part, riddle) in zip(parts.iter(), griddle) {
         if !part.contains('?') {
@@ -41,15 +52,26 @@ fn count_possible_arangements(grid: String, griddle: &Vec<&str>) -> usize {
     for (i, char) in grid.chars().enumerate() {
         if char == '?' {
             wildcards = true;
-            let prev_groups: Vec<&str> = grid[..i + 1].split('.').filter(|x| *x != "").collect();
-
-            println!("{prev_groups:?}");
-
-            let left = format!("{}#{}", &grid[..i], &grid[i + 1..]);
-            let right = format!("{}.{}", &grid[..i], &grid[i + 1..]);
-
-            arrangements += count_possible_arangements(left, griddle);
-            arrangements += count_possible_arangements(right, griddle);
+            let prev_groups: Vec<&str> =
+                grid[..i + 1].split('.').filter(|x| !x.is_empty()).collect();
+            let group_count = prev_groups.len() - 1;
+            if group_count > griddle.len() {
+                return 0;
+            }
+            let left = format!(
+                "{}{}",
+                prev_groups[group_count].replacen('?', "#", 1),
+                &grid[i + 1..]
+            );
+            let right = format!(
+                "{}{}",
+                prev_groups[group_count].replacen('?', ".", 1),
+                &grid[i + 1..]
+            );
+            arrangements +=
+                count_possible_arangements(left, &griddle[group_count..].to_vec(), memo);
+            arrangements +=
+                count_possible_arangements(right, &griddle[group_count..].to_vec(), memo);
             break;
         }
     }
@@ -77,9 +99,13 @@ fn count_possible_arangements(grid: String, griddle: &Vec<&str>) -> usize {
                 }
             }
             if all_match && arrangements == 0 {
-                return 1;
+                arrangements = 1;
             }
         }
     }
+    memo.insert(
+        (grid, griddle.iter().map(|x| x.to_string()).collect()),
+        arrangements,
+    );
     arrangements
 }
