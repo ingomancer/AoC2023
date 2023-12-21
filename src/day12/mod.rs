@@ -1,10 +1,55 @@
+use indicatif::ParallelProgressIterator;
+use rayon::prelude::*;
 use std::iter::zip;
-
 pub fn run(input: String) -> (String, String) {
-    let mut sum = 0;
-    for line in input.lines() {
-        let (grid, griddle) = line.split_once(' ').unwrap();
-        let griddle: Vec<&str> = griddle.split(',').collect();
+    let lines = input.lines().count() as u64;
+    let (sum, sum2): (usize, usize) = input
+        .par_lines()
+        .map(|line| {
+            let (grid, griddle) = line.split_once(' ').unwrap();
+            let grid2 = format!("{}?{}?{}?{}?{}", grid, grid, grid, grid, grid);
+            let griddle2 = format!(
+                "{},{},{},{},{}",
+                griddle, griddle, griddle, griddle, griddle
+            );
+            let griddle: Vec<&str> = griddle.split(',').collect();
+            let griddle2: Vec<&str> = griddle2.split(',').collect();
+
+            (
+                count_possible_arangements(grid.to_string(), &griddle),
+                count_possible_arangements(grid2, &griddle2),
+            )
+        })
+        .progress_count(lines)
+        .reduce(|| (0, 0), |acc, x| (acc.0 + x.0, acc.1 + x.1));
+    (format!("{}", sum), format!("{}", sum2))
+}
+
+fn count_possible_arangements(grid: String, griddle: &Vec<&str>) -> usize {
+    let mut arrangements = 0;
+    let mut wildcards = false;
+    let parts: Vec<&str> = grid.split('.').filter(|x| !x.is_empty()).collect();
+    for (part, riddle) in zip(parts.iter(), griddle) {
+        if !part.contains('?') {
+            if part.len() != riddle.parse().unwrap() {
+                return 0;
+            }
+        } else {
+            break;
+        }
+    }
+    for (i, char) in grid.chars().enumerate() {
+        if char == '?' {
+            wildcards = true;
+            let left = format!("{}#{}", &grid[..i], &grid[i + 1..]);
+            let right = format!("{}.{}", &grid[..i], &grid[i + 1..]);
+
+            arrangements += count_possible_arangements(left, griddle);
+            arrangements += count_possible_arangements(right, griddle);
+            break;
+        }
+    }
+    if !wildcards {
         let mut parts = vec![];
         let mut section = String::new();
         for char in grid.chars() {
@@ -20,47 +65,16 @@ pub fn run(input: String) -> (String, String) {
         if !section.is_empty() {
             parts.push(section);
         }
-        sum += count_possible_arangements(&parts, &griddle);
-    }
-    (format!("{sum}"), format!(""))
-}
-
-fn count_possible_arangements(parts: &Vec<String>, griddle: &Vec<&str>) -> usize {
-    let mut arrangements = 0;
-    for (i, part) in parts.iter().enumerate() {
-        for (j, char) in part.chars().enumerate() {
-            if char == '?' {
-                if part.len() == 1 {
-                    arrangements += count_possible_arangements(
-                        &[&parts[..i], &parts[i + 1..]].concat(),
-                        griddle,
-                    );
-                    arrangements += count_possible_arangements(
-                        &[&parts[..i], &["#".to_owned()], &parts[i + 1..]].concat(),
-                        griddle,
-                    );
-                } else {
-                    let left = [part[..j].to_string(), part[j + 1..].to_string()];
-                    let right = format!("{}#{}", part[..j].to_string(), part[j + 1..].to_string());
-
-                    arrangements += count_possible_arangements(
-                        &[&parts[..i], &left[..], &parts[i + 1..]].concat(),
-                        griddle,
-                    );
-                    arrangements += count_possible_arangements(
-                        &[&parts[..i], &[right][..], &parts[i + 1..]].concat(),
-                        griddle,
-                    );
+        if parts.len() == griddle.len() {
+            let mut all_match = true;
+            for (part, riddle) in zip(parts, griddle) {
+                if part.len() != riddle.parse().unwrap() {
+                    all_match = false;
                 }
             }
-        }
-    }
-    if parts.len() == griddle.len() {
-        for (part, riddle) in zip(parts, griddle) {
-            if !(part.len() == riddle.parse().unwrap()) {
-                break;
+            if all_match && arrangements == 0 {
+                return 1;
             }
-            return 1 + arrangements;
         }
     }
     arrangements
