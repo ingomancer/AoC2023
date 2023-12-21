@@ -41,6 +41,10 @@ fn count_possible_arangements(grid: String, griddle: &Vec<&str>) -> usize {
     for (i, char) in grid.chars().enumerate() {
         if char == '?' {
             wildcards = true;
+            let prev_groups: Vec<&str> = grid[..i + 1].split('.').filter(|x| *x != "").collect();
+
+            println!("{prev_groups:?}");
+
             let left = format!("{}#{}", &grid[..i], &grid[i + 1..]);
             let right = format!("{}.{}", &grid[..i], &grid[i + 1..]);
 
