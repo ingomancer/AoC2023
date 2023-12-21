@@ -11,7 +11,7 @@ pub fn run(input: String) -> (String, String) {
     for line in lines {
         let (node, paths) = line.split_once(" = (").unwrap();
         let (left, right) = paths.split_once(", ").unwrap();
-        let right = right.strip_suffix(")").unwrap();
+        let right = right.strip_suffix(')').unwrap();
         if node.ends_with('A') {
             cur_nodes.push(node);
         }
@@ -61,7 +61,6 @@ pub fn run(input: String) -> (String, String) {
         }
         stepcounts.push(steps);
     }
-    println!("{:?}", stepcounts);
     (
         format!("{steps}"),
         format!("{}", stepcounts.iter().fold(1, |acc, e| lcm(acc, *e))),
@@ -89,7 +88,7 @@ ZZZ = (ZZZ, ZZZ)"
 
     #[test]
     fn test_repeat() {
-        let input = "LLR 
+        let input = "LLR
 
 AAA = (BBB, BBB)
 BBB = (AAA, ZZZ)

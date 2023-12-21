@@ -6,10 +6,10 @@ pub fn run(input: String) -> (String, String) {
     let mut galaxies = HashSet::new();
     let mut x_offset = 0;
     let mut x_offset_2 = 0;
-    let mut lines = input.lines().enumerate();
+    let lines = input.lines().enumerate();
     let cols = input.lines().next().unwrap().len();
     let mut empty_cols: HashSet<usize> = (0..cols).collect();
-    while let Some((x, line)) = lines.next() {
+    for (x, line) in lines {
         let mut no_galaxies = true;
         for (y, char) in line.chars().enumerate() {
             if char == '#' {

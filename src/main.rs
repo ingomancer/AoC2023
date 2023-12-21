@@ -21,7 +21,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .unwrap_or(-1);
     if day == -1 {
         let now = Instant::now();
-        for i in 1..=14 {
+        for i in 1..=12 {
             run_day(i, false)?;
         }
         println!("{}", now.elapsed().as_secs_f32());

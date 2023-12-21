@@ -10,7 +10,7 @@ pub fn run(input: String) -> (String, String) {
     (format!("{sum}"), format!("{sum2}"))
 }
 
-fn first_last_elem<'a, T>(mut nums: T) -> (i32, i32)
+fn first_last_elem<T>(mut nums: T) -> (i32, i32)
 where
     T: Iterator<Item = i32>,
 {
@@ -23,9 +23,9 @@ where
         prev = num;
     }
     if subseq.iter().all(|x| x == &0) {
-        return (first, prev);
+        (first, prev)
     } else {
         let (next_first, next_prev) = first_last_elem(subseq.into_iter());
-        return (first - next_first, prev + next_prev);
+        (first - next_first, prev + next_prev)
     }
 }
